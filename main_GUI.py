@@ -29,38 +29,40 @@ class Analyze_GUI():
 
     # select file
         # ラベルフレーム
-        self.select_frame = ttk.Labelframe(self.root,text = "select file",padding = 15)
-        self.select_frame.grid(row = 0,column = 0, padx = 15,pady = 15,sticky=tk.W)
+        self.select_frame = ttk.Labelframe(self.root, text = "select file", padding = 15)
+        self.select_frame.grid(row = 0, column = 0, padx = 15, pady = 15, sticky=tk.W)
 
         # テキストボックス
-        self.file_txtbox = tk.Entry(self.select_frame,width=50,state="readonly")
-        self.file_txtbox.grid(row = 0,column=0 ,padx = 10)
+        self.file_txtbox = tk.Entry(self.select_frame, width=50, state="readonly")
+        self.file_txtbox.grid(row = 0, column=0, padx = 10)
 
         # ボタン
-        self.sarch_button = tk.Button(self.select_frame, text = "検索",command= lambda:self.ask_filedialog())
-        self.sarch_button.grid(row= 0,column = 1, padx = 10)
+        self.sarch_button = tk.Button(self.select_frame, text = "ファイル検索", command= lambda:self.ask_filedialog())
+        self.sarch_button.grid(row= 0, column = 1, padx = 10)
 
-        self.sarch_button1 = tk.Button(self.select_frame, text = "取込",command= lambda:self.file_import())
-        self.sarch_button1.grid(row= 0,column = 2, padx = 10)
+        self.sarch_button1 = tk.Button(self.select_frame, text = "取込開始", command= lambda:self.file_import())
+        self.sarch_button1.grid(row= 1, column = 1, padx = 10)
+
+        # コンボボックス
+        self.analyze_cmbbox = ttk.Combobox(self.select_frame, values = ["クラスタリング","回帰分析"], width= 30, state="readonly")
+        self.analyze_cmbbox.grid(row= 1, columns =2, padx =100)
 
     # 汎用メッセージ
-    def message(self,error_level:int,text:str):
+    def message(self, error_level:int, text:str):
         if error_level == 1:
-            messagebox.showinfo("情報",text)
+            messagebox.showinfo("情報", text)
         elif error_level == 2:
-            messagebox.showwarning("警告",text)
+            messagebox.showwarning("警告", text)
         elif error_level == 3:
-            messagebox.showerror("エラー",text)
+            messagebox.showerror("エラー", text)
     
     # メニューバー実行イベント
     def help_func(self):
-        subprocess.run(["start","manual.txt"],shell=True)
-
-
+        subprocess.run(["start","manual.txt"], shell=True)
 
     # ボタン実行イベント
     def ask_filedialog(self):
-        file_path = filedialog.askopenfilename(filetypes=[("xlsx","*.xlsx")])
+        file_path = filedialog.askopenfilename(filetypes=[("xlsx", "*.xlsx")])
         self.file_txtbox.configure(state="normal")
         self.file_txtbox.delete(0,tk.END)
         self.file_txtbox.insert(0,file_path)
@@ -72,70 +74,150 @@ class Analyze_GUI():
         Analyze_GUI.ycol_list = list(self.df.columns)
 
     # analyze
-        # ラベルフレーム
-        self.analyze_frame = ttk.Labelframe(self.root,text = "analyze",padding = 15)
-        self.analyze_frame.grid(row = 1,column = 0, padx =15,pady = 15,sticky=tk.W)
+        if self.analyze_cmbbox.get() == "クラスタリング":
 
-        # ラベル
-        self.xcol_label = ttk.Label(self.analyze_frame,text= "x軸指定列名",width= 30)
-        self.xcol_label.grid(row= 0,columns =1,padx =10)
+            # ラベルフレーム
+            self.analyze_frame = ttk.Labelframe(self.root, text = "analyze", padding = 15)
+            self.analyze_frame.grid(row = 1, column = 0, padx =15, pady = 15, sticky=tk.W)
 
-        self.ycol_label = ttk.Label(self.analyze_frame,text= "y軸指定列名",width= 30)
-        self.ycol_label.grid(row= 1,columns =1,padx =10)
+            # ラベル
+            self.xcol_label = ttk.Label(self.analyze_frame,text= "x軸指定列名", width= 30)
+            self.xcol_label.grid(row= 0, columns =1, padx =10)
 
-        self.cluster_label = ttk.Label(self.analyze_frame,text= "分類数",width= 30)
-        self.cluster_label.grid(row= 2,columns =1,padx =10)
+            self.ycol_label = ttk.Label(self.analyze_frame, text= "y軸指定列名", width= 30)
+            self.ycol_label.grid(row= 1, columns =1, padx =10)
 
-        # コンボボックス
-        self.xcol_cmbbox = ttk.Combobox(self.analyze_frame, values = Analyze_GUI.xcol_list,width= 30, state="readonly")
-        self.xcol_cmbbox.grid(row= 0,columns =10,padx =100)
+            self.cluster_label = ttk.Label(self.analyze_frame, text= "分類数", width= 30)
+            self.cluster_label.grid(row= 2, columns =1, padx =10)
 
-        self.ycol_cmbbox = ttk.Combobox(self.analyze_frame, values = Analyze_GUI.ycol_list,width = 30, state="readonly")
-        self.ycol_cmbbox.grid(row= 1,columns =10,padx =100)
-   
-        self.cluster_cmbbox = ttk.Combobox(self.analyze_frame, values = list(range(1,6)),width = 5, state="readonly")
-        self.cluster_cmbbox.grid(row=2,column = 2,padx =100)
+            # コンボボックス
+            self.xcol_cmbbox = ttk.Combobox(self.analyze_frame, values = Analyze_GUI.xcol_list, width= 30, state="readonly")
+            self.xcol_cmbbox.grid(row= 0, columns =10,padx =100)
 
-        # ボタン
-        self.exec_button1 = tk.Button(self.analyze_frame, text = "実行",command=lambda: self.analyze_exec_check())
-        self.exec_button1.grid(row= 2,column = 3, padx = 10)
+            self.ycol_cmbbox = ttk.Combobox(self.analyze_frame, values = Analyze_GUI.ycol_list, width = 30, state="readonly")
+            self.ycol_cmbbox.grid(row= 1, columns =10,padx =100)
     
-    def analyze_exec_check(self):
-        try:
-            Analyze_GUI.df[self.xcol_cmbbox.get()]
-            Analyze_GUI.df[self.ycol_cmbbox.get()]
-            int(self.cluster_cmbbox.get())            
-        except:
-            self.message(3,"コンボボックスの値が不正です。")
+            self.cluster_cmbbox = ttk.Combobox(self.analyze_frame, values = list(range(1,6)), width = 5, state="readonly")
+            self.cluster_cmbbox.grid(row=2, column = 2, padx =100)
+
+            # ボタン
+            self.exec_button1 = tk.Button(self.analyze_frame, text = "実行", command=lambda: self.analyze_exec_check("cluster"))
+            self.exec_button1.grid(row= 2, column = 3, padx = 10)
+        elif self.analyze_cmbbox.get() == "回帰分析":
+            # ラベルフレーム
+            self.analyze_frame = ttk.Labelframe(self.root, text = "analyze", padding = 15)
+            self.analyze_frame.grid(row = 1, column = 0, padx =15, pady = 15, sticky=tk.W)
+
+            # ラベル
+            self.xcol_study_label = ttk.Label(self.analyze_frame,text= "x軸学習列名", width= 30)
+            self.xcol_study_label.grid(row= 0, columns =1, padx =10)
+
+            self.ycol_study_label = ttk.Label(self.analyze_frame, text= "y軸学習列名", width= 30)
+            self.ycol_study_label.grid(row= 1, columns =1, padx =10)
+
+            self.xcol_zissoku_label = ttk.Label(self.analyze_frame,text= "x軸実測列名", width= 30)
+            self.xcol_zissoku_label.grid(row= 2, columns =1, padx =10)
+
+            self.ycol_zissoku_label = ttk.Label(self.analyze_frame, text= "y軸実測列名", width= 30)
+            self.ycol_zissoku_label.grid(row= 3, columns =1, padx =10)
+
+            # コンボボックス
+            self.xcol_study_cmbbox = ttk.Combobox(self.analyze_frame, values = Analyze_GUI.xcol_list, width= 30, state="readonly")
+            self.xcol_study_cmbbox.grid(row= 0, columns =10,padx =100)
+
+            self.ycol_study_cmbbox = ttk.Combobox(self.analyze_frame, values = Analyze_GUI.ycol_list, width = 30, state="readonly")
+            self.ycol_study_cmbbox.grid(row= 1, columns =10,padx =100)            
+
+            self.xcol_zissoku_cmbbox = ttk.Combobox(self.analyze_frame, values = Analyze_GUI.xcol_list, width= 30, state="readonly")
+            self.xcol_zissoku_cmbbox.grid(row= 2, columns =10,padx =100)
+
+            self.ycol_zissoku_cmbbox = ttk.Combobox(self.analyze_frame, values = Analyze_GUI.ycol_list, width = 30, state="readonly")
+            self.ycol_zissoku_cmbbox.grid(row= 3, columns =10,padx =100)   
+
+            # ボタン
+            self.exec_button1 = tk.Button(self.analyze_frame, text = "実行", command=lambda: self.analyze_exec_check("kaiki"))
+            self.exec_button1.grid(row= 3, column = 11, padx = 10)           
+
+
+    def analyze_exec_check(self,analyze_keyword:str):
+
+        if analyze_keyword == "cluster":
+            try:
+                Analyze_GUI.df[self.xcol_cmbbox.get()]
+                Analyze_GUI.df[self.ycol_cmbbox.get()]
+                int(self.cluster_cmbbox.get())            
+            except:
+                self.message(3,"コンボボックスの値が不正です。")
+                return
+
+            try:
+                Analyze_GUI.df[self.xcol_cmbbox.get()] = Analyze_GUI.df[self.xcol_cmbbox.get()].astype(float)
+                Analyze_GUI.df[self.ycol_cmbbox.get()] = Analyze_GUI.df[self.ycol_cmbbox.get()].astype(float)
+            except:
+                self.message(3, "コンボボックスに指定をしている列名が数値型のデータ列ではありません。")
+                return
+
+            if self.xcol_cmbbox.get()== self.ycol_cmbbox.get():
+                self.message(3, "x軸y軸の列名に同一列を指定できません。")
+                return
+
+            xlabel = self.xcol_cmbbox.get()
+            ylabel = self.ycol_cmbbox.get()
+            cluster = int(self.cluster_cmbbox.get())             
+
+            if messagebox.askyesno("確認", "クラスタリングを実行しますか？"):
+                obj_analyze = Anlayze.Analyze(Analyze_GUI.df)
+                obj_analyze.cluster_analyze(xlabel, ylabel, cluster)
+                self.result_display()
+            
             return
+        elif analyze_keyword == "kaiki":
+            try:
+                Analyze_GUI.df[self.xcol_study_cmbbox.get()]
+                Analyze_GUI.df[self.ycol_study_cmbbox.get()]
+                Analyze_GUI.df[self.xcol_zissoku_cmbbox.get()]
+                Analyze_GUI.df[self.ycol_zissoku_cmbbox.get()]         
+            except:
+                self.message(3,"コンボボックスの値が不正です。")
+                return
 
-        try:
-            Analyze_GUI.df[self.xcol_cmbbox.get()] = Analyze_GUI.df[self.xcol_cmbbox.get()].astype(float)
-            Analyze_GUI.df[self.ycol_cmbbox.get()] = Analyze_GUI.df[self.ycol_cmbbox.get()].astype(float)
-        except:
-            self.message(3,"コンボボックスに指定をしている列名が数値型のデータ列ではありません。")
+            try:
+                Analyze_GUI.df[self.xcol_study_cmbbox.get()] = Analyze_GUI.df[self.xcol_study_cmbbox.get()].astype(float)
+                Analyze_GUI.df[self.ycol_study_cmbbox.get()] = Analyze_GUI.df[self.ycol_study_cmbbox.get()].astype(float)
+                Analyze_GUI.df[self.xcol_zissoku_cmbbox.get()] = Analyze_GUI.df[self.xcol_zissoku_cmbbox.get()].astype(float)
+                Analyze_GUI.df[self.ycol_zissoku_cmbbox.get()] = Analyze_GUI.df[self.ycol_zissoku_cmbbox.get()].astype(float)
+            except:
+                self.message(3, "コンボボックスに指定をしている列名が数値型のデータ列ではありません。")
+                return
+
+            x_study = self.xcol_study_cmbbox.get()
+            y_study = self.ycol_study_cmbbox.get()
+            x_zissoku = self.xcol_zissoku_cmbbox.get()
+            y_zissoku = self.ycol_zissoku_cmbbox.get()
+
+            col_check_list = [x_study,y_study,x_zissoku,y_zissoku]
+
+
+            if len(set(col_check_list)) < 4:
+                self.message(3, "同一列は指定できません。")
+                return
+
+            if messagebox.askyesno("確認", "回帰分析を実行しますか？"):
+                obj_analyze = Anlayze.Analyze(Analyze_GUI.df)
+                obj_analyze.linear_regression(x_study,y_study,x_zissoku,y_zissoku,100,100)
+                self.result_display()
+            
             return
-
-        xlabel = self.xcol_cmbbox.get()
-        ylabel = self.ycol_cmbbox.get()
-        cluster = int(self.cluster_cmbbox.get()) 
-
-        if messagebox.askyesno("確認", "クラスタリングを実行しますか？"):
-            obj_analyze = Anlayze.Analyze(Analyze_GUI.df)
-            obj_analyze.cluster_analyze(xlabel, ylabel, cluster)
-            self.result_display()
-        
-        return
 
     def result_display(self):
-        self.result_frame = ttk.Labelframe(self.root,text = "cluster_result",padding = 15)
-        self.result_frame.grid(row = 2,column = 0, padx =15,pady = 15,sticky=tk.W)
+        self.result_frame = ttk.Labelframe(self.root, text = "cluster_result", padding = 15)
+        self.result_frame.grid(row = 2, column = 0, padx =15,pady = 15, sticky=tk.W)
 
         self.image = tk.PhotoImage(file="tmp.png")
-        self.result_canvas = tk.Canvas(self.result_frame,height=500,width=600)
-        self.result_canvas.grid(row=0,column=0,padx =10)
+        self.result_canvas = tk.Canvas(self.result_frame, height=500, width=600)
+        self.result_canvas.grid(row=0, column=0, padx =10)
 
-        self.result_canvas.create_image(0,0,image=self.image,anchor=tk.NW)
+        self.result_canvas.create_image(0, 0, image=self.image, anchor=tk.NW)
         return
 
 def main():
